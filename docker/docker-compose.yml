@@ -1,0 +1,130 @@
+networks:
+  monitoramento:
+    driver: bridge
+
+services:
+  mariadb:
+    container_name: mariadb
+    image: mariadb:10.11
+    restart: always
+    networks:
+      - monitoramento
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MYSQL_DATABASE}
+      MARIADB_USER: ${MYSQL_USER}
+      MARIADB_PASSWORD: ${MYSQL_PASSWORD}
+      MARIADB_CHARACTER_SET_SERVER: utf8mb4
+      MARIADB_COLLATION_SERVER: utf8mb4_unicode_ci
+
+  zabbix-server:
+    container_name: zabbix-server
+    image: zabbix/zabbix-server-mysql:ubuntu-6.0.42
+    hostname: zabbix-server
+    restart: always
+    networks:
+      - monitoramento
+    ports:
+      - "10051:10051"
+    volumes:
+      - zabbix_server_data:/var/lib/zabbix
+    environment:
+      DB_SERVER_HOST: mariadb
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    depends_on:
+      - mariadb
+
+  zabbix-frontend:
+    container_name: zabbix-frontend
+    image: zabbix/zabbix-web-apache-mysql:ubuntu-6.0.42
+    hostname: zabbix-frontend
+    restart: always
+    networks:
+      - monitoramento
+    ports:
+      - "80:8080"
+      - "443:8443"
+    environment:
+      DB_SERVER_HOST: mariadb
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      PHP_TZ: America/Sao_Paulo
+    depends_on:
+      - mariadb
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:11.6.0
+    hostname: grafana
+    restart: always
+    networks:
+      - monitoramento
+    ports:
+      - "3000:3000"
+    environment:
+      GF_INSTALL_PLUGINS: alexanderzobnin-zabbix-app,grafana-clock-panel
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: alexanderzobnin-zabbix-app
+    depends_on:
+      - zabbix-server
+
+  zabbix-agent:
+    container_name: zabbix-agent
+    image: zabbix/zabbix-agent2:alpine-6.0.42
+    hostname: zabbix-agent
+    restart: always
+    privileged: true
+    networks:
+      - monitoramento
+    ports:
+      - "10050:10050"
+    environment:
+      ZBX_SERVER_HOST: zabbix-server
+      ZBX_HOSTNAME: zabbix-agent
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:v2.52.0
+    restart: always
+    networks:
+      - monitoramento
+    ports:
+      - "9090:9090"
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  loki:
+    container_name: loki
+    image: grafana/loki:2.9.2
+    restart: always
+    networks:
+      - monitoramento
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/loki-config.yaml
+    ports:
+      - "3100:3100"
+
+  promtail:
+    container_name: promtail-loki
+    image: grafana/promtail:2.9.2
+    restart: always
+    networks:
+      - monitoramento
+    volumes:
+      - ./promtail/promtail-config.yml:/etc/promtail/promtail-config.yaml
+    command:
+      - "-config.file=/etc/promtail/promtail-config.yaml"
+    depends_on:
+      - loki
+
+volumes:
+  mysql_data:
+  zabbix_server_data:
