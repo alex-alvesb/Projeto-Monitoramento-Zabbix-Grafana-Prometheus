@@ -46,5 +46,38 @@ Todos os dashboards estão versionados em JSON para fácil reutilização:
   - Windows Exporter Dashboard (compatível com v0.31+)
 
 📁 Localização:
-```text
 grafana/dashboards/
+
+---
+
+## 🧱 Arquitetura
+
+```
++----------------------+
+|   Host Windows       |
+|----------------------|
+| - Zabbix Agent       |
+| - Windows Exporter   |
++----------+-----------+
+           |
+           | Metrics / Checks
+           v
++--------------------------------------+
+|        VM Debian (Monitoring)         |
+|--------------------------------------|
+| Docker Compose                        |
+|                                      |
+| - Prometheus  <--- Metrics            |
+| - Zabbix Server <--- Availability    |
+| - Loki <--- Logs                     |
+| - Promtail                           |
+|                                      |
+| - Grafana (Dashboards & Logs)        |
++--------------------------------------+
+```
+
+---
+
+
+
+
