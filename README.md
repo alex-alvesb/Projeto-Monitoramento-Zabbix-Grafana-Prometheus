@@ -48,6 +48,9 @@ Todos os dashboards estão versionados em JSON para fácil reutilização:
 📁 Localização:
 grafana/dashboards/
 
+📁 Visualização do Monitoramento:
+grafana/screenshots/
+
 ---
 
 ## 🧱 Arquitetura
@@ -78,6 +81,15 @@ grafana/dashboards/
 
 ---
 
+## 🚀 Próximos Passos
 
+As melhorias abaixo representam próximos passos planejados para evoluir o ambiente de monitoramento:
 
-
+### 🔹 Monitoramento de Hardware Avançado
+- Monitoramento de GPU (uso, memória e temperatura)
+- Coleta de temperatura de CPU
+- Monitoramento de velocidade de fans (coolers)
+### 🔹 Alertas e Observabilidade Proativa
+- Criação de alertas no Zabbix e Prometheus
+### 🔹 Evolução da Infraestrutura
+- Monitoramento de infraestrutura em nuvem (AWS/Azure)
