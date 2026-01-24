@@ -1,0 +1,71 @@
+# This project ignores runtime-generated files and sensitive data
+# to ensure security and reproducibility.
+
+# =========================
+# Environment files
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# Docker
+# =========================
+**/data/
+**/volumes/
+**/storage/
+**/tmp/
+
+# Docker override files
+docker-compose.override.yml
+
+# =========================
+# Grafana
+# =========================
+grafana/data/
+grafana/plugins/
+
+# =========================
+# Zabbix
+# =========================
+zabbix/data/
+zabbix/db/
+zabbix/alertscripts/
+zabbix/externalscripts/
+
+# =========================
+# Prometheus
+# =========================
+prometheus/data/
+prometheus/wal/
+
+# =========================
+# Loki / Promtail
+# =========================
+loki/data/
+loki/chunks/
+loki/index/
+loki/wal/
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+log/
+
+# =========================
+# OS / Editor
+# =========================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# =========================
+# Backup / Export
+# =========================
+*.bak
+*.backup
+*.old
